@@ -1,0 +1,28 @@
+services:
+  jenkins-master:
+    image: jenkins/jenkins:lts
+    container_name: jenkins_master
+    ports:
+      - "8080:8080"
+      - "50000:50000"  # JNLP port for inbound agents (optional)
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./projects:/app
+    networks:
+      - jenkins-net
+
+  jenkins-agent:
+    build:
+      context: ./agent
+    container_name: jenkins_agent
+    hostname: jenkins-agent
+    networks:
+      - jenkins-net
+    expose:
+      - "22"  # SSH only inside Docker network
+
+volumes:
+  jenkins_home:
+
+networks:
+  jenkins-net:
