@@ -1,3 +1,3 @@
-const gretting = 'hello world'
+const gretting = 'hello volume'
 console.log( gretting )
 console.log( '-----------------------' )

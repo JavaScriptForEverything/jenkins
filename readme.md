@@ -143,7 +143,35 @@ console.log( '-----------------------' )
 
 
 
+## Push code to github and clone build and run project
 
+- Unmount project volume from container, so that there will be no project
+- Restart container to take latest change (unmounted volume container)
+
+- Create New Project
+- Create Github repo and get the url
+- Create New Job
+- Source Code Mangement > Git 
+        > Url           : git-project-url
+        > */main        : main branch to use
+
+- Triggers:
+        > Poll CMS      : 
+        > Shedule       : * * * * * (every minute)
+
+- Environment:
+        - Provide Node & npm bin/ folder to PATH        # [ required for Nodejs Plugin ]
+        > name:         : nodejs                        # the same name used in tools
+
+- Build Step:
+        - Execute Shell
+```
+$ yarn install
+$ yarn start
+```
+
+- Save          : first save auto pull, nest time build required to push to github
+- make change and `$ git push` will trigger this job,
 
 
 
