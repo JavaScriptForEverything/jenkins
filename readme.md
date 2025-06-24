@@ -1,5 +1,153 @@
+## Jenkins
+```
+.
+├── docker-compose.yaml
+├── projects
+│   └── app1
+│       ├── app.js
+│       └── package.json
+├── readme.md
+└── Vagrantfile
+```
 
-### SSH Into containers for Slave-master
+
+##### docker-compose.yaml
+```
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./projects:/projects
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+```
+
+
+##### projects/app1/app.js
+```
+const gretting = 'hello world'
+console.log( gretting )
+console.log( '-----------------------' )
+```
+
+
+##### projects/app1/package.json
+```
+{
+  "name": "app1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "build": "echo 'build project'",
+    "test": "echo 'run tests on project'",
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+```
+
+#### Create Job for Nodejs 
+```
+|----------[ Nodejs Project ]---------- 						        |
+|												|
+| Let's Run our nodejs project inside jenkins master: 						|
+|												|
+| Step-1: Mount Project volume inside jenkins (/app) so that jenkins has source code available 	|
+|												|
+| 	$ mkdir projects      		        : Create a directory inside host machine 	|
+| 	$ subl docker-compose.yaml              : See docker-compose and Dockerfile in github 	|
+|	...											|
+| 	./projects:/projects 		        : Mount local directory inside container /projects
+|	...											|
+|												|
+| 	$ docker compose up -d 		        : Update docker containers   			|
+| 	$ docker exec -it jenkins_master bash   : To check directory 'app' available inside container
+| 	$ ls 					: => /app, ... 				        |
+|												|
+| 	$ exit 					:                                               |
+|												|
+|												|
+| Step-2: Create a nodejs project, and run on localhost to make sure it works correctly: 	|
+|												|
+| 	../app1/ 			                                                        |
+| 	├── app.js 										|
+| 		└── package.json 					                        |
+|												|
+| 	// app.js 				                                                |
+| 	const gretting = 'hello world' 					                        |
+| 	console.log( gretting ) 								|
+| 	console.log( '-----------------------' ) 						|
+|												|
+| 	// package.js 										|
+|               {                                                                               |
+|                 "name": "app1",                                                               |
+|                 "version": "1.0.0",                                                           |
+|                 "description": "",                                                            |
+|                 "main": "app.js",                                                             |
+|                 "scripts": {                                                                  |
+|                   "build": "echo 'build project'",                                            |
+|                   "test": "echo 'run tests on project'",                                      |
+|                   "start": "node ."                                                           |
+|                 },                                                                            |
+|                 "keywords": [],                                                               |
+|                 "author": "",                                                                 |
+|                 "license": "ISC"                                                              |
+|               }                                                                               |
+|												|
+| Step-3: Install & configure Nodejs inside jenkins: 						|
+|												|
+| 	- Install node as plugin 								|
+| 		Manage Jenkins: > Plugins > <search nodejs> > mark and install 			|
+|												|
+| 	- Add node as Tools : [ Once the NodeJs installed via plugin then that will be available in Tools section ] 
+|												|
+| 		Manage Jenkins:	> Tools > NodeJs > add 	 					|
+| 		  - nodejs        	        : this name will be used 			|
+| 		  - install other packages globally inside this. 			        |
+| 			yarn 		        : Install global pageges: $ yarn start 	        |
+|												|
+|												|
+|												|
+| Step-4: Now create a Job and Run with nodejs plugin: 						|
+|												|
+|   Job-1: Job > FressStyle: 			                                                |
+| 	- Name 					: node-app1 		                        |
+| 	- Type 					: FreeStyle 					|
+| 	- Environment 				: 					        |
+| 	- Provide Node & npm bin/ folder to PATH 		                                |
+| 	    NodeJS Installtion: 		                                                |
+| 		nodejs 				: Choose the name we give in Step-3 		|
+|												|
+| 	- Build Step  				                                                |
+| 	   - Execute Shell 			: To run Shell command, like: yarn start 	|
+|												|
+| 		cd /projects/app1 		: Go to countainer's mount directory's node project 
+| 		npm start 			: Now Run Nodejs project, 			|
+| 		yarn start 			: If added global 'yarn' inside Tools > nodejs instaltion
+|												|
+| 	- Save 					: the change and  				|
+|												|
+| 	- Build Now 				: We didn't set auto trigger, so build manually |
+|												|
+```
+
+
+
+
+
+
+
+## SSH Into containers for Slave-master
 ```
 .
 ├── agent
@@ -49,6 +197,7 @@ services:
       - "50000:50000"  # JNLP port for inbound agents (optional)
     volumes:
       - jenkins_home:/var/jenkins_home
+      - ./projects:/projects
     networks:
       - jenkins-net
 

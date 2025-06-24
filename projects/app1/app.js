@@ -1,2 +1,3 @@
-console.log('hello world')
-console.log('hello 2world')
+const gretting = 'hello world'
+console.log( gretting )
+console.log( '-----------------------' )

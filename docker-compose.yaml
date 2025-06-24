@@ -7,7 +7,7 @@ services:
       - "50000:50000"  # JNLP port for inbound agents (optional)
     volumes:
       - jenkins_home:/var/jenkins_home
-      - ./projects:/app
+      - ./projects:/projects
     networks:
       - jenkins-net
 
