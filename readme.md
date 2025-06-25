@@ -185,7 +185,7 @@ $ yarn start
 ```
 
 
-###### /agent/Dockerfile
+### /agent/Dockerfile
 ```
 FROM node:20
 
@@ -213,7 +213,7 @@ EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 ```
 
-###### /docker-compose.yaml
+### /docker-compose.yaml
 ```
 services:
   jenkins-master:
@@ -246,7 +246,7 @@ networks:
 ```
 
 
-###### Testing SSH
+#### Testing SSH
 ```
 $ docker compose up -d                                          : (1) Create containers
 $ docker exec -it jenkins_master bash                           : (2) Bash into master
@@ -254,8 +254,8 @@ $ docker exec -it jenkins_master bash                           : (2) Bash into 
         password: jenkins                                       : see in Dockerfile
 ```
 
-###### Step-1: Create VM or Docker container (As I did above)
-###### Step-2: Configure Slave/Agent with SSH, [ docker can ssh internally ]
+#### Step-1: Create VM or Docker container (As I did above)
+#### Step-2: Configure Slave/Agent with SSH, [ docker can ssh internally ]
 
 Jenkins Manage > Node > New Node
   - Name                : jenkins-slave
@@ -271,7 +271,7 @@ Jenkins Manage > Node > New Node
   - Now Check slave is active or not, if not active then re-check credential
 
 
-###### Step-3: Create a project and choose Agent to execute there
+#### Step-3: Create a project and choose Agent to execute there
 
 -  Create Job > as regular way, in General Secion enable
 
@@ -286,17 +286,18 @@ Source Code Management:
         - Project URL   : use github repo       [ or mount volume inside slave again ]
         - Branch        : */main                [ select project's branch ]
 
-Triggers
+Triggers:
    - Choose any of triggers,  I choose [ Remote Trigger ]
 
-Environment
+Environment:
    - Provide Node & npm bin/ folder to PATH     [ No need this because slave have node installed ]
 
-Build
+Build:
    - Execute Shell
-
-        echo 'job started'
-        yarn start                              : Because clone available in default location where shell opens
+```
+echo 'job started'
+yarn start                                      : Because clone available in default location where shell opens
+```
 ---
 
 Not Test the app by trigger, hit the remote url
