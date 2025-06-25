@@ -154,7 +154,6 @@ console.log( '-----------------------' )
 - Source Code Mangement > Git 
         > Url           : git-project-url
         > */main        : main branch to use
-
 - Triggers:
         > Poll CMS      : 
         > Shedule       : * * * * * (every minute)
@@ -252,4 +251,52 @@ networks:
 $ docker compose up -d                                          : (1) Create containers
 $ docker exec -it jenkins_master bash                           : (2) Bash into master
 	$ jenkins@95d3cfcd8d3d:/$ ssh root@jenkins-agent -p 22  : (3) To test SSH into slave
+        password: jenkins                                       : see in Dockerfile
 ```
+
+###### Step-1: Create VM or Docker container (As I did above)
+###### Step-2: Configure Slave/Agent with SSH, [ docker can ssh internally ]
+
+Jenkins Manage > Node > New Node
+  - Name                : jenkins-slave
+  - Type                : Permanent Agent
+  - Root Directory      : /root         [ because my user is root ]
+  - Launch Method       : Launch Agent vai SSH
+        - Host          : jenkins-agent         Same host name we provide in Dockerfile
+        - Credentials   : Choose username & password    which will be store globally
+            - username  : => root
+            - password  : => jenkins
+            - port      : => 22
+
+  - Now Check slave is active or not, if not active then re-check credential
+
+
+###### Step-3: Create a project and choose Agent to execute there
+
+-  Create Job > as regular way, in General Secion enable
+
+General:
+   - name               : job-test-slave
+   - type               : freeStyle
+   - Restrict Where Project Can Run:
+            - Label     : jenkins-slave                         : Same name as node we created
+
+Source Code Management:
+   - Git Repo
+        - Project URL   : use github repo       [ or mount volume inside slave again ]
+        - Branch        : */main                [ select project's branch ]
+
+Triggers
+   - Choose any of triggers,  I choose [ Remote Trigger ]
+
+Environment
+   - Provide Node & npm bin/ folder to PATH     [ No need this because slave have node installed ]
+
+Build
+   - Execute Shell
+
+        echo 'job started'
+        yarn start                              : Because clone available in default location where shell opens
+---
+
+Not Test the app by trigger, hit the remote url
