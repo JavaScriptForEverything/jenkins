@@ -255,6 +255,12 @@ $ docker exec -it jenkins_master bash                           : (2) Bash into 
 ```
 
 #### Step-1: Create VM or Docker container (As I did above)
+
+- Slave must have Java to work, because communication happend by Java
+- Slave must have Nodejs install to run node app
+- Slave must have docker if want to ssh between docker containers with same network
+
+
 #### Step-2: Configure Slave/Agent with SSH, [ docker can ssh internally ]
 
 Jenkins Manage > Node > New Node
@@ -301,3 +307,83 @@ yarn start                                      : Because clone available in def
 ---
 
 Not Test the app by trigger, hit the remote url
+
+
+
+## Pipeline
+```
+Until now we handled our jobs by GUI, for proper CI/CD automation we need to use pipeline features
+
+  Pipeline Can be used 2 ways:
+     1. in GUI via pipeline type job
+     2. in Jenkinsfile inside project
+
+  Pipeline Script also can be used in 2 ways:
+   - Pipeline used to create a scripting language called 'Groovy Script'
+
+     1. Scripting Way                   : Write Grovvy Script (if you already know)
+     2. Declarative Way                 : with pre-defined block, so that we can only focus on job, not scripting language
+```
+
+
+
+### Declative Style Script project
+
+-  Create Job > as regular way, in General Secion enable
+
+   - name               : pipeline-gui
+   - type               : pipeline
+
+General:
+   - Github Project
+       - Project url    : https://github.com/JavaScriptForEverything/jenkins-test-project
+
+
+Triggers:
+   - Choose any of triggers,  I choose [ Remote Trigger ]
+
+Pipeline:
+   - Pipeline Script                    : Runs scripts in Jengins GUI text editor
+   - Pipeline Script from SCM           : Runs scripts from Github project's Jenkinsfile
+
+```
+pipeline {
+  agent any
+
+  tools {
+    nodejs 'nodejs'                 # : installed name 'nodejs' => NodeJs 24.2.0
+  }
+
+  stages {
+    stage('Delete old repo') {
+      steps {
+        sh 'rm -rf jenkins-test-project'
+      }
+    }
+
+    stage('Clone repo') {
+      steps {
+        echo 'Cloning my repo'
+        sh 'git clone https://github.com/JavaScriptForEverything/jenkins-test-project'
+      }
+    }
+
+    stage('Install packages') {
+      steps {
+        dir('jenkins-test-project') {
+          sh 'yarn install'
+        }
+      }
+    }
+
+    stage('Running App') {
+      steps {
+        dir('jenkins-test-project') {
+          sh 'yarn start'
+        }
+      }
+    }
+  }
+}
+```
+- Not Test the app by trigger, hit the remote url
